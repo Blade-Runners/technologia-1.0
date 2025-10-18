@@ -120,7 +120,7 @@ const featuresInDepthData = [
 
             "Eliminates the need for slow, error-prone, and expensive manual audits.",
 
-            "Provides real-time compliance status, so you are always aware of your security posture.",
+            "Provides compliance status, so you are always aware of your security posture.",
 
             "Frees up your security team to focus on strategic initiatives instead of repetitive manual checks."
 
@@ -172,26 +172,6 @@ const featuresInDepthData = [
 
         icon: <ShieldCheckIcon />,
 
-        title: "Secure Sign-Out Protocol",
-
-        description: "A critical and often overlooked security feature. When any user signs out of the system, Auditron instantly and automatically resets all associated folder and file permissions to their original, strictest settings.",
-
-        benefits: [
-
-            "Completely eliminates the risk of privilege persistence after a user session ends.",
-
-            "Drastically reduces the attack surface available to potential intruders.",
-
-            "Ensures that no temporary access rights are accidentally left open."
-
-        ]
-
-    },
-
-    {
-
-        icon: <ShieldCheckIcon />,
-
         title: "Tailored Security Advice",
 
         description: "Auditron doesn't just identify problems; it helps you solve them. Instead of generic pass/fail reports, our system provides clear, tailored recommendations based on your specific compliance data.",
@@ -212,7 +192,7 @@ const featuresInDepthData = [
 
         icon: <ShieldCheckIcon />,
 
-        title: "Intuitive Reporting GUI",
+        title: "Intuitive Reporting WebUI",
 
         description: "All of this power is managed through a clean, intuitive Graphical User Interface. The dashboard is designed to be accessible for everyone, from highly technical security engineers to non-technical stakeholders.",
 
@@ -278,7 +258,7 @@ const uniqueFeaturesData = [
 
         argument: "Many platforms fail to address the critical risk of privilege persistence. A compromised account with lingering permissions after a session ends can lead to catastrophic data breaches.",
 
-        unique_solution: "Auditron is built on a zero-persistence model. Our Secure Sign-Out Protocol is absolute. The moment a session ends, all temporary privileges are revoked. This fundamental design principle is something most competitors treat as an afterthought.",
+        unique_solution: "Auditron is built on a zero-persistence model. The moment a session ends, all temporary privileges are revoked. This fundamental design principle is something most competitors treat as an afterthought.",
 
         stat: "According to Verizon's 2024 Data Breach Investigations Report, the use of stolen credentials remains one of the most common paths for attackers to gain initial access."
 
