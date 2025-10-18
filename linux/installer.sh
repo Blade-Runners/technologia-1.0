@@ -24,12 +24,13 @@ cp -a "$SRC_DIR/cis_definitions.json" "$INSTALL_DIR/cis_definitions.json"
 
 echo "[+] Regenerating boot structure. This may take a moment."
 install -Dm755 "/etc/kernel/cmdline" "$INSTALL_DIR/cmdline"
-sed -i '${s/[[:space:]]*$//; s/$/ init=\/early-init/}' filename
+sed -i '${s/[[:space:]]*$//; s/$/ init=\/early-init/}' "$INSTALL_DIR/cmdline"
 mkinitcpio -k /boot/vmlinuz-linux -c /etc/mkinitcpio.conf -U /efi/uki.efi -g /boot/initramfs-linux.img --cmdline /usr/local/lib/auditron/cmdline
 
 echo "[+] Installing userland agent and systemd service (agent will run after normal boot)"
 install -Dm755 "$SRC_DIR/userland/fetch_cis.sh" "/usr/local/bin/auditron-fetch-cis.sh"
 install -Dm755 "$SRC_DIR/userland/agent.sh" "/usr/local/bin/auditron-agent.sh"
+install -Ddm755 "$SRC_DIR/page" "/var/lib/auditron"
 install -Dm644 "$SRC_DIR/userland/auditron.service" "/etc/systemd/system/auditron.service"
 
 mkdir -p /var/lib/auditron
