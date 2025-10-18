@@ -121,3 +121,69 @@ const workflowSteps = [
     },
 ];
 
+const AboutPage = () => {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setIsVisible(true), 100);
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <div className="space-y-20">
+            <div className="text-center">
+                <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">
+                        How It Works
+                    </span>
+                </h1>
+                <p className="text-lg text-slate-300 max-w-3xl mx-auto">
+                    Follow the Auditron process from initial deployment to complete system protection.
+                </p>
+            </div>
+
+            <div className="relative max-w-5xl mx-auto">
+                <div className="absolute left-1/2 top-2 h-full w-0.5 bg-slate-700 -translate-x-1/2"></div>
+                
+                <div className="space-y-16">
+                    {workflowSteps.map((step, index) => (
+                        <div
+                            key={step.step}
+                            className={`relative flex items-center transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                            style={{ transitionDelay: `${200 + index * 150}ms` }}
+                        >
+                            <div className={`w-[calc(50%-4rem)] p-8 bg-slate-800/60 rounded-2xl border border-slate-700 transition-transform duration-300 hover:scale-105 hover:border-teal-400/50 shadow-lg ${index % 2 === 0 ? 'mr-auto' : 'ml-auto order-3'}`}>
+                                <h3 className={`text-2xl font-bold mb-3 ${step.color}`}>Step {step.step}: {step.title}</h3>
+                                <ul className="space-y-2 list-disc list-inside text-slate-300 leading-relaxed">
+                                    {step.description.map((point, i) => (
+                                        <HighlightedPoint key={i} text={point} />
+                                    ))}
+                                </ul>
+                            </div>
+                            
+                            <div className={`w-[calc(50%-4rem)] h-48 flex items-center justify-center ${index % 2 === 0 ? 'ml-auto order-3' : 'mr-auto'}`}>
+                                <svg width="120" height="120" viewBox="0 0 100 100" className="opacity-15 blur-[0.5px]">
+                                    <defs>
+                                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stopColor="#38bdf8" />
+                                            <stop offset="100%" stopColor="#2dd4bf" />
+                                        </linearGradient>
+                                    </defs>
+                                    {step.pattern}
+                                </svg>
+                            </div>
+                            
+                            <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center`}>
+                                <div className={`w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center p-4 ${step.color}`}>
+                                    {step.icon}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default AboutPage;
