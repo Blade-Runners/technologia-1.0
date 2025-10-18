@@ -3,9 +3,9 @@
   "rules": [
     {
       "id": "CIS-LINUX-0001",
-      "description": "No executables in /tmp",
-      "path": "/tmp",
-      "pattern": "*.sh",
+      "description": "No shellscript in /",
+      "path": "/",
+      "pattern": "/*.sh",
       "action": "report"
     },
     {

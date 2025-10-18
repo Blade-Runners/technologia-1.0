@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# set -euo pipefail
 
 LOCAL_SRC_DIR="/usr/local/lib/auditron"
 DST_DIR="/usr/local/lib/auditron"

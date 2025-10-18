@@ -7,7 +7,7 @@ INSTALL_DIR="/usr/local/lib/auditron"
 
 echo "[+] auditron installer starting"
 echo "[+] Source dir: $SRC_DIR"
-echo "[+] Install dir: $INSTALL_PREFIX"
+echo "[+] Install dir: $INSTALL_DIR"
 
 if [ "$EUID" -ne 0 ]; then
   echo "This installer must be run as root."
@@ -30,10 +30,11 @@ mkinitcpio -k /boot/vmlinuz-linux -c /etc/mkinitcpio.conf -U /efi/uki.efi -g /bo
 echo "[+] Installing userland agent and systemd service (agent will run after normal boot)"
 install -Dm755 "$SRC_DIR/userland/fetch_cis.sh" "/usr/local/bin/auditron-fetch-cis.sh"
 install -Dm755 "$SRC_DIR/userland/agent.sh" "/usr/local/bin/auditron-agent.sh"
-install -Ddm755 "$SRC_DIR/page" "/var/lib/auditron"
+install -Dm755 "$SRC_DIR/userland/report.html" "/var/lib/auditron/report.html"
+install -Dm644 "$SRC_DIR/cis_definitions.json" "/var/lib/auditron/cis_definitions.json"
 install -Dm644 "$SRC_DIR/userland/auditron.service" "/etc/systemd/system/auditron.service"
 
-mkdir -p /var/lib/auditron
+# mkdir -p /var/lib/auditron
 chown -R root:root /var/lib/auditron
 
 systemctl daemon-reload
