@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / compiled files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor-specific files
+node_modules/
+
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Virtual environment
+venv/
+.venv/
+
+# dotenv files
+.env
+.env.*
