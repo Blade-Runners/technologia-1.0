@@ -19,10 +19,13 @@ rm -rf "$INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
 cp -a "$SRC_DIR/early-init" "$INSTALL_DIR/early-init"
 chmod 0755 "$INSTALL_DIR/early-init"
+cp -a "$INSTALL_DIR/early-init" "/early-init"
 cp -a "$SRC_DIR/cis_definitions.json" "$INSTALL_DIR/cis_definitions.json"
 
 echo "[+] Regenerating boot structure. This may take a moment."
-mkinitcpio -P
+install -Dm755 "/etc/kernel/cmdline" "$INSTALL_DIR/cmdline"
+sed -i '${s/[[:space:]]*$//; s/$/ init=\/early-init/}' filename
+mkinitcpio -k /boot/vmlinuz-linux -c /etc/mkinitcpio.conf -U /efi/uki.efi -g /boot/initramfs-linux.img --cmdline /usr/local/lib/auditron/cmdline
 
 echo "[+] Installing userland agent and systemd service (agent will run after normal boot)"
 install -Dm755 "$SRC_DIR/userland/fetch_cis.sh" "/usr/local/bin/auditron-fetch-cis.sh"
