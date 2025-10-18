@@ -31,7 +31,6 @@ const DownloadPage = () => {
                     <span className="font-bold text-2xl text-white">Download for Windows</span>
                     <span className="text-slate-400">(.ps1 script)</span>
                 </a>
-
                 {/* Linux Download Card */}
                 <a 
                     href={downloadLinks.Linux} 
