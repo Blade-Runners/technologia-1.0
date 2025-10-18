@@ -15,7 +15,7 @@ const HomePage = () => {
                 </p>
             </div>
 
-            {/* "Why Choose Auditron" Section */}
+            
             <div>
                 <h2 className="text-3xl font-bold text-center mb-10 text-white">Why Choose Auditron?</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

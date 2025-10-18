@@ -11,7 +11,7 @@ const Header = ({ setPage }) => {
                     </span>
                 </a>
                 
-                {/* A right margin (mr-24) has been added here to shift the navigation links to the left */}
+                
                 <div className="hidden md:flex items-center space-x-6 mr-24">
                     <a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="text-slate-300 hover:text-teal-300 transition-colors">Dashboard</a>
                     <a href="#" onClick={(e) => { e.preventDefault(); setPage('project'); }} className="text-slate-300 hover:text-teal-300 transition-colors">About Auditron</a>
@@ -20,7 +20,7 @@ const Header = ({ setPage }) => {
                 </div>
 
                 <div className="flex items-center">
-                    {/* This can be a placeholder for a future button if needed */}
+                    
                 </div>
             </nav>
         </header>

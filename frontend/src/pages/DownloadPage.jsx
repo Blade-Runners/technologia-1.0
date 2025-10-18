@@ -1,11 +1,10 @@
 import React from 'react';
 
 const DownloadPage = () => {
-    // TODO: Replace these '#' placeholders with the actual paths to your downloadable script files.
-    // For example, you might place 'audit-script-windows.ps1' in your /public folder.
+    
     const downloadLinks = {
-        Windows: '/audit-script-windows.ps1', // PowerShell script
-        Linux: '/audit-script-linux.sh',   // Shell script
+        Windows: '/audit-script-windows.ps1', 
+        Linux: '/audit-script-linux.sh',   
     };
 
     return (
