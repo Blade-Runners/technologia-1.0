@@ -1,0 +1,15 @@
+[Unit]
+Description=Auditron userland agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/auditron-agent.sh
+Restart=always
+User=root
+ProtectSystem=full
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target
