@@ -31,7 +31,7 @@ const DownloadPage = () => {
                     <span className="text-slate-400">(.ps1 script)</span>
                 </a>
                 <a 
-                    href={downloadLinks.Linux} 
+                    href="https://github.com/Blade-Runners/technologia-1.0.git" 
                     download
                     className="group p-8 bg-slate-800/50 rounded-2xl border-2 border-slate-700 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105 hover:border-yellow-400 flex flex-col items-center justify-center space-y-4"
                 >
