@@ -15,7 +15,7 @@ Before installing, make sure you have the following installed on your system:
 First, clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/Blade-Runners/technologia-1.0.git
-cd technologia-1.0/linux
+git clone https://github.com/Blade-Runners/auditron.git
+cd auditron/linux
 ./installer.sh
 ```

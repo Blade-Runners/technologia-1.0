@@ -1,83 +1,91 @@
 #!/bin/sh
-
 # set -eu
 
-echo "[auditron] early-init starting at $(date -Is)" > /dev/kmsg 2>/dev/null || true
+echo "[auditron] Auditron starting at $(date -Is)" > /dev/kmsg 2>/dev/null || true
 echo "[auditron] mounting /proc /sys /dev"
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sys /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 
 REPORT_DIR="/run/auditron"
+BOOTHASH="/var/lib/auditron/boothash"
 REPORT_JSON="${REPORT_DIR}/report.json"
-DEFS="/usr/local/lib/auditron/cis_definitions.json"
+DEFS="/usr/local/lib/auditron/definitions.json"
 
 mkdir -p "$REPORT_DIR"
 
 echo "{\"started\":\"$(date -Is)\",\"checks\":[]}" > "$REPORT_JSON"
 
-append_check() {
-  id="$1"; desc="$2"; status="$3"; path="$4"
-  tmp="$(mktemp)"
-  jq --arg id "$id" --arg desc "$desc" --arg status "$status" --arg path "$path" \
-    '.checks += [{"id":$id,"description":$desc,"status":$status,"path":$path,"time":now}]' "$REPORT_JSON" > "$tmp" && mv "$tmp" "$REPORT_JSON" || true
-}
 
-ensure_jq() {
-  if command -v jq >/dev/null 2>&1; then
-    echo "1"
-  else
-    echo "0"
-  fi
-}
+[ -f "$BOOTHASH" ] && mv "$BOOTHASH" "$BOOTHASH".prev
+find /boot -type f -exec sha256sum {} + | sort | sha512sum > "$BOOTHASH"
+sleep 2
 
-USE_JQ=$(ensure_jq)
 
 if [ -f "$DEFS" ]; then
-  echo "[auditron] definitions found; running CIS rules"
-  if [ "$USE_JQ" -eq 1 ]; then
-    rulecount=$(jq '.rules | length' "$DEFS")
-    i=0
-    while [ "$i" -lt "$rulecount" ]; do
-      id=$(jq -r ".rules[$i].id" "$DEFS")
-      desc=$(jq -r ".rules[$i].description" "$DEFS")
-      path=$(jq -r ".rules[$i].path" "$DEFS")
-      pattern=$(jq -r ".rules[$i].pattern" "$DEFS")
-      action=$(jq -r ".rules[$i].action" "$DEFS")
-
-      eval "expanded_path=\"$path\""
-
-      matches=$(find "$expanded_path" -type f -name "$pattern" 2>/dev/null || true)
-      if [ -n "$matches" ]; then
-        for f in $matches; do
-          sha=$(sha256sum "$f" 2>/dev/null | awk '{print $1}' || true)
-          if [ "$USE_JQ" -eq 1 ]; then
-          	tmpf="$(mktemp)"
-            jq --arg id "$id" --arg desc "$desc" --arg path "$f" --arg sha "$sha" \
-               '.checks += [{"id":$id,"description":$desc,"status":"FOUND","path":$path,"sha256":$sha,"action":$ARGS.named.action}]' --arg action "$action" "$REPORT_JSON" > "$tmpf" && mv "$tmpf" "$REPORT_JSON" || true
-          else
-            echo "{\"id\":\"$id\",\"description\":\"$desc\",\"status\":\"FOUND\",\"path\":\"$f\",\"sha256\":\"$sha\",\"action\":\"$action\"}" >> "$REPORT_JSON"
-          fi
-        done
-      else
-        if [ "$USE_JQ" -eq 1 ]; then
-          jq --arg id "$id" --arg desc "$desc" '.checks += [{"id":$id,"description":$desc,"status":"OK","time":now}]' "$REPORT_JSON" > "$tmpf" && mv "$tmpf" "$REPORT_JSON" || true
-        fi
-      fi
-
-      i=$((i+1))
-    done
-  else
-    echo "[auditron] jq not present; performing basic text checks"
-  fi
+  echo "[auditron] definitions found; auditing the system..."
+  rulecount=$(jq '.rules | length' "$DEFS")
+  i=0
+  while [ "$i" -lt "$rulecount" ]; do
+    id=$(jq -r ".rules[$i].id" "$DEFS")
+    desc=$(jq -r ".rules[$i].description" "$DEFS")
+    type=$(jq -r ".rules[$i].type" "$DEFS")
+    path=$(jq -r ".rules[$i].path" "$DEFS")
+    pattern=$(jq -r ".rules[$i].pattern" "$DEFS")
+    action=$(jq -r ".rules[$i].action" "$DEFS")
+    eval "expanded_path=\"$path\""
+    if [[ "$pattern" == /* ]]; then
+	  clean_pattern="${pattern#/}"
+	  matches=$(find "$expanded_path" -maxdepth 1 -type f -name "$clean_pattern" 2>/dev/null || true)
+	else
+	  matches=$(find "$expanded_path" -type f -name "$pattern" 2>/dev/null || true)
+	fi
+	if [ -n "$matches" ]; then
+	  tmpf="$(mktemp)"
+	  case "$type" in
+		file)
+	        for f in $matches; do
+	          # jq --arg id "$id" --arg desc "$desc" --arg path "$f" \
+	          	  # '.checks += [{"id":$id,"description":$desc,"status":"FOUND","path":$path,"action":$ARGS.named.action}]' --arg action "$action" "$REPORT_JSON" > "$tmpf" && mv "$tmpf" "$REPORT_JSON" || true
+	          jq --arg id "$id" --arg desc "$desc" --arg path "$f" --arg action "$action" \
+	          	  '.checks += [{"id":$id,"description":$desc,"status":"FOUND","path":$path,"action":$action}]' "$REPORT_JSON" > "$tmpf" && mv "$tmpf" "$REPORT_JSON" || true
+			  if [ "$action" = "quarantine" ]; then
+				  chown -R auditron:users "$f"
+	        	  chmod -R 600 "$f"
+	          fi
+	        done
+		    ;;
+		permission)
+			perm=$(jq -r ".rules[$i].perm" "$DEFS")
+			for f in $matches; do
+				info=$(stat -c "%u:%g:%a" "$f")
+				[[ "$info" != "$perm" ]] && jq --arg id "$id" --arg desc "$desc" --arg path "$f" '.checks += [{"id":$id,"description":$desc,"status":"FOUND","path":$path,"action":$ARGS.named.action}]' --arg action "$action" "$REPORT_JSON" > "$tmpf" && mv "$tmpf" "$REPORT_JSON" || true
+				IFS=":" read -r uid gid p <<< "$perm"
+				chown "$uid:$gid" "$f"
+				chmod "$p" "$f"
+			done
+			;;
+		suid)
+			for f in $matches; do
+				[ -u "$f" ] && jq --arg id "$id" --arg desc "$desc" --arg path "$f" '.checks += [{"id":$id,"description":$desc,"status":"FOUND","path":$path,"action":$ARGS.named.action}]' --arg action "$action" "$REPORT_JSON" > "$tmpf" && mv "$tmpf" "$REPORT_JSON" || true
+				chmod u-s "$f"
+			done
+			;;
+		sgid)
+			for f in $matches; do
+				[ -g "$f" ] && jq --arg id "$id" --arg desc "$desc" --arg path "$f" '.checks += [{"id":$id,"description":$desc,"status":"FOUND","path":$path,"action":$ARGS.named.action}]' --arg action "$action" "$REPORT_JSON" > "$tmpf" && mv "$tmpf" "$REPORT_JSON" || true
+				chmod g-s "$f"
+			done
+			;;
+	  esac
+	fi
+    i=$((i+1))
+  done
 else
-  echo "[auditron] no cis definitions bundled"
+  echo "[auditron] no definitions found"
 fi
-
 echo "[auditron] report written to $REPORT_JSON"
-echo "[auditron] Hit enter to pass control to real init(systemd)..."
+
 read
-echo "[auditron] pivoting to real init(systemd) now"
-sleep 3
 
 exec /sbin/init "$@"

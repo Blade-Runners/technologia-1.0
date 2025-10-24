@@ -1,0 +1,38 @@
+{
+  "version": "2025-10-18",
+  "rules": [
+    {
+      "id": "CIS-LINUX-0001",
+      "type":"file",
+      "description": "Quarantine shellscript in /",
+      "path": "/",
+      "pattern": "/*.sh",
+      "action": "quarantine"
+    },
+    {
+      "id": "CIS-LINUX-0002",
+      "type":"permission",
+      "description": "user shellscript in /home",
+      "path": "/home",
+      "perm": "1000:1000:0600",
+      "pattern": "/*.sh",
+      "action": "report"
+    },
+    {
+      "id": "CIS-LINUX-0003",
+      "type":"suid",
+      "description": "no suid in /home",
+      "path": "/home",
+      "pattern": "*.sh",
+      "action": "report"
+    },
+    {
+      "id": "CIS-LINUX-0004",
+      "type":"sgid",
+      "description": "no sgid in /home",
+      "path": "/home",
+      "pattern": "*.sh",
+      "action": "report"
+    }
+  ]
+}
