@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+
+@font-face {
+  font-family: "edosz";
+  src: url("/fonts/edosz.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+@theme {
+  --font-edosz: "edosz", sans-serif;
+}
